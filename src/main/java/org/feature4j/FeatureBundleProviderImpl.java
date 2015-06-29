@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -39,14 +40,16 @@ public class FeatureBundleProviderImpl implements FeatureBundleProvider {
       String value = getValue(context, feature);
       featureMapBuilder.put(feature.key(), value);
     }
-    return new FeatureBundle(featureMapBuilder.build());
+    featureMapBuilder.putAll(context.getVariantOverrides());
+    Map<String, String> featureMap = featureMapBuilder.build();
+    return new FeatureBundle(featureMap);
   }
 
   public String getValue(FeaturesContext context, Feature feature) {
-    Iterable<FeatureOverride> overrides = feature.overrides();
+    Iterable<VariantEvaluator> overrides = feature.variantEvaluators();
     Optional<String> optValue;
-    for (FeatureOverride override : overrides) {
-      optValue = override.extractFeatureValue(context);
+    for (VariantEvaluator override : overrides) {
+      optValue = override.evaluateVariant(context);
       if (optValue != null && optValue.isPresent()) {
        return optValue.get();
       }

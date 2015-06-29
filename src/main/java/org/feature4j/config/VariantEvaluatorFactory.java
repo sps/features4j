@@ -15,8 +15,8 @@
  */
 package org.feature4j.config;
 
-import org.feature4j.FeatureOverride;
+import org.feature4j.VariantEvaluator;
 
-public interface FeatureOverridesFactory {
-  Iterable<FeatureOverride> createOverrides(FeatureConfiguration featureConfiguration);
+public interface VariantEvaluatorFactory {
+  Iterable<VariantEvaluator> createVariantEvaluators(FeatureConfiguration featureConfiguration);
 }

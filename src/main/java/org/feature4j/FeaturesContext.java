@@ -15,6 +15,10 @@
  */
 package org.feature4j;
 
+import java.util.Map;
+
 public interface FeaturesContext {
   int getBucketId();
+  Map<String, String> getFeatureData();
+  Map<String, String> getVariantOverrides();
 }

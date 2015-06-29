@@ -27,9 +27,9 @@ import static org.mockito.Mockito.when;
 
 public class FeatureBundleProviderImplTest {
 
-  private final FeatureOverride featureOverride = mock(FeatureOverride.class);
+  private final VariantEvaluator variantEvaluator = mock(VariantEvaluator.class);
   private final Feature feature1 = new SimpleFeature("1", "one", "1", null);
-  private final Feature feature2 = new SimpleFeature("1", "two", "0", ImmutableList.of(featureOverride));
+  private final Feature feature2 = new SimpleFeature("1", "two", "0", ImmutableList.of(variantEvaluator));
   private FeatureBundleProvider featureProvider;
 
 
@@ -40,7 +40,7 @@ public class FeatureBundleProviderImplTest {
 
   @Test
   public void testFeatureOverridesShouldBeIgnoredIfTheyReturnNull() throws Exception {
-    when(featureOverride.extractFeatureValue(SimpleFeaturesContext.EMPTY)).thenReturn(null);
+    when(variantEvaluator.evaluateVariant(SimpleFeaturesContext.EMPTY)).thenReturn(null);
     FeatureBundle bundle = featureProvider.getFeatures(SimpleFeaturesContext.EMPTY);
     assertEquals(2, bundle.getFeatures().size());
     assertEquals("1", bundle.string("one", null));
@@ -49,7 +49,7 @@ public class FeatureBundleProviderImplTest {
   }
   @Test
   public void testFeatureOverridesShouldBeIgnoredIfTheyReturnAbsent() throws Exception {
-    when(featureOverride.extractFeatureValue(SimpleFeaturesContext.EMPTY)).thenReturn(Optional.<String>empty());
+    when(variantEvaluator.evaluateVariant(SimpleFeaturesContext.EMPTY)).thenReturn(Optional.<String>empty());
     FeatureBundle bundle = featureProvider.getFeatures(SimpleFeaturesContext.EMPTY);
     assertEquals(2, bundle.getFeatures().size());
     assertEquals("1", bundle.string("one", null));
@@ -58,7 +58,7 @@ public class FeatureBundleProviderImplTest {
 
   @Test
   public void testFeatureOverridesShouldBeUsedIfTheyReturnAValue() throws Exception {
-    when(featureOverride.extractFeatureValue(SimpleFeaturesContext.EMPTY)).thenReturn(Optional.of("OVERRIDE"));
+    when(variantEvaluator.evaluateVariant(SimpleFeaturesContext.EMPTY)).thenReturn(Optional.of("OVERRIDE"));
     FeatureBundle bundle = featureProvider.getFeatures(SimpleFeaturesContext.EMPTY);
     assertEquals("1", bundle.string("one", null));
     assertEquals("OVERRIDE", bundle.string("two", null));

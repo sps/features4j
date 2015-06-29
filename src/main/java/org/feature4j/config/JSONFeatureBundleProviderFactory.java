@@ -16,11 +16,12 @@
 package org.feature4j.config;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import org.feature4j.Feature;
 import org.feature4j.FeatureBundleProvider;
 import org.feature4j.FeatureBundleProviderImpl;
-import org.feature4j.FeatureOverride;
+import org.feature4j.VariantEvaluator;
 import org.feature4j.SimpleFeature;
 
 import java.io.IOException;
@@ -36,21 +37,24 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class JSONFeatureBundleProviderFactory implements FeatureBundleProviderFactory {
 
-  private static final CompositeFeatureOverridesFactory DEFAULT_FACTORY =
-      CompositeFeatureOverridesFactory.fromFactories(
-        new BucketRangeFeatureOverrideFactory()
+  private static final CompositeVariantEvaluatorFactory DEFAULT_FACTORY =
+      CompositeVariantEvaluatorFactory.fromFactories(
+          new BucketRangeVariantEvaluatorFactory(),
+          new DataValuesVariantEvaluatorFactory()
       );
 
   private final InputStream jsonResource;
-  private final FeatureOverridesFactory featureOverridesFactory;
+  private final VariantEvaluatorFactory variantEvaluatorFactory;
 
   public JSONFeatureBundleProviderFactory(InputStream jsonResource) {
     this(jsonResource, DEFAULT_FACTORY);
   }
 
-  public JSONFeatureBundleProviderFactory(InputStream jsonResource, FeatureOverridesFactory featureOverridesFactory) {
+  public JSONFeatureBundleProviderFactory(InputStream jsonResource,
+                                          VariantEvaluatorFactory variantEvaluatorFactory) {
     this.jsonResource = checkNotNull(jsonResource, "jsonResource must be non-null");
-    this.featureOverridesFactory = checkNotNull(featureOverridesFactory, "featureOverridesFactory must be non-null");
+    this.variantEvaluatorFactory = checkNotNull(variantEvaluatorFactory,
+        "featureOverridesFactory must be non-null");
   }
 
   @Override
@@ -62,10 +66,12 @@ public class JSONFeatureBundleProviderFactory implements FeatureBundleProviderFa
 
     final ImmutableList.Builder<Feature> listBuilder = ImmutableList.builder();
 
-    for (FeatureConfiguration c : features.getFeatures()) {
-      Iterable<FeatureOverride> featureOverrides = featureOverridesFactory.createOverrides(c);
-      Feature feature = new SimpleFeature(c.getName(), c.getKey(), c.getValue(), featureOverrides);
-      listBuilder.add(feature);
+    if (features != null) {
+      for (FeatureConfiguration c : features.getFeatures()) {
+        Iterable<VariantEvaluator> variantEvaluators = variantEvaluatorFactory.createVariantEvaluators(c);
+        Feature feature = new SimpleFeature(c.getName(), c.getKey(), c.getValue(), variantEvaluators);
+        listBuilder.add(feature);
+      }
     }
 
     return new FeatureBundleProviderImpl(listBuilder.build());

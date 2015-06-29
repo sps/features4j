@@ -18,6 +18,6 @@ package org.feature4j;
 
 import java.util.Optional;
 
-public interface FeatureOverride {
-    Optional<String> extractFeatureValue(FeaturesContext ctx);
+public interface VariantEvaluator {
+    Optional<String> evaluateVariant(FeaturesContext ctx);
 }

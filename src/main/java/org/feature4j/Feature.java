@@ -15,9 +15,6 @@
  */
 package org.feature4j;
 
-import com.google.common.collect.Range;
-
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -33,7 +30,7 @@ public interface Feature<T> {
 
   Optional<Function<String, T>> converter();
 
-  Iterable<FeatureOverride> overrides();
+  Iterable<VariantEvaluator> variantEvaluators();
 
 }
 

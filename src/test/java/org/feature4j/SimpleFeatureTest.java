@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -40,7 +39,7 @@ public class SimpleFeatureTest {
       Range.closed(1, 10), overrideValue
   );
 
-  private FeatureOverride featureOverride;
+  private VariantEvaluator variantEvaluator;
 
   @Before
   public void setUp() throws Exception {
@@ -49,17 +48,17 @@ public class SimpleFeatureTest {
   @Test
   public void testConstructorWithoutConverterShouldReturnNoConvertedDefaultValue() {
     // GIVEN
-    featureOverride = mock(FeatureOverride.class);
+    variantEvaluator = mock(VariantEvaluator.class);
 
     // WHEN
-    Feature<String> feature = new SimpleFeature<>(name, key, value, ImmutableList.of(featureOverride));
+    Feature<String> feature = new SimpleFeature<>(name, key, value, ImmutableList.of(variantEvaluator));
 
     // THEN
     assertEquals(false, feature.converter().isPresent());
     assertEquals(name, feature.name());
     assertEquals(key, feature.key());
     assertEquals(value, feature.defaultValue());
-    assertEquals(1, Iterables.size(feature.overrides()));
+    assertEquals(1, Iterables.size(feature.variantEvaluators()));
 
     assertEquals(false, feature.convertedDefaultValue().isPresent());
   }
@@ -67,11 +66,11 @@ public class SimpleFeatureTest {
   @Test
   public void testConstructorWithConverterShouldReturnConvertedDefaultValue() {
     // GIVEN
-    featureOverride = mock(FeatureOverride.class);
+    variantEvaluator = mock(VariantEvaluator.class);
 
     // WHEN
     Feature<Integer> feature = new SimpleFeature<>(name, key, "5",
-        ImmutableList.of(featureOverride),
+        ImmutableList.of(variantEvaluator),
         Optional.of(Integer::valueOf));
 
     // THEN
@@ -83,11 +82,11 @@ public class SimpleFeatureTest {
   @Test
   public void testConstructorWithConverterShouldReturnConvertedDefaultValueOnIllegalValue() {
     // GIVEN
-    featureOverride = mock(FeatureOverride.class);
+    variantEvaluator = mock(VariantEvaluator.class);
 
     // WHEN
     Feature<Integer> feature = new SimpleFeature<>(name, key, "NaN",
-        ImmutableList.of(featureOverride),
+        ImmutableList.of(variantEvaluator),
         Optional.of(Integer::valueOf));
 
     // THEN

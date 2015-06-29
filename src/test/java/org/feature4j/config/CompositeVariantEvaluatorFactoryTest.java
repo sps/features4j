@@ -18,7 +18,7 @@ package org.feature4j.config;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import junit.framework.TestCase;
-import org.feature4j.FeatureOverride;
+import org.feature4j.VariantEvaluator;
 import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
@@ -29,11 +29,11 @@ import static org.mockito.Mockito.when;
 /**
  * Created by dannwebster on 6/15/15.
  */
-public class CompositeFeatureOverridesFactoryTest extends TestCase {
-  FeatureOverridesFactory fac1 = mock(FeatureOverridesFactory.class);
-  FeatureOverridesFactory fac2 = mock(FeatureOverridesFactory.class);
+public class CompositeVariantEvaluatorFactoryTest extends TestCase {
+  VariantEvaluatorFactory fac1 = mock(VariantEvaluatorFactory.class);
+  VariantEvaluatorFactory fac2 = mock(VariantEvaluatorFactory.class);
 
-  CompositeFeatureOverridesFactory subject = CompositeFeatureOverridesFactory.fromFactories(fac1, fac2);
+  CompositeVariantEvaluatorFactory subject = CompositeVariantEvaluatorFactory.fromFactories(fac1, fac2);
   FeatureConfiguration config = new FeatureConfiguration();
 
   @Test
@@ -42,29 +42,29 @@ public class CompositeFeatureOverridesFactoryTest extends TestCase {
     // factories that return null
 
     // WHEN
-    Iterable<FeatureOverride> overrides = subject.createOverrides(config);
+    Iterable<VariantEvaluator> overrides = subject.createVariantEvaluators(config);
 
     // THEN
     assertNotNull(overrides);
     assertEquals(0, Iterables.size(overrides));
 
-    verify(fac1, times(1)).createOverrides(config);
-    verify(fac2, times(1)).createOverrides(config);
+    verify(fac1, times(1)).createVariantEvaluators(config);
+    verify(fac2, times(1)).createVariantEvaluators(config);
   }
 
   @Test
   public void testFactoriesThatReturnFullListsTheListsShouldBeTheUnion() throws Exception {
     // GIVEN
-    FeatureOverride override1 = mock(FeatureOverride.class);
-    FeatureOverride override2 = mock(FeatureOverride.class);
-    FeatureOverride override3 = mock(FeatureOverride.class);
-    FeatureOverride override4 = mock(FeatureOverride.class);
+    VariantEvaluator override1 = mock(VariantEvaluator.class);
+    VariantEvaluator override2 = mock(VariantEvaluator.class);
+    VariantEvaluator override3 = mock(VariantEvaluator.class);
+    VariantEvaluator override4 = mock(VariantEvaluator.class);
 
-    when(fac1.createOverrides(config)).thenReturn(ImmutableList.of(override1, override2));
-    when(fac2.createOverrides(config)).thenReturn(ImmutableList.of(override3, override4));
+    when(fac1.createVariantEvaluators(config)).thenReturn(ImmutableList.of(override1, override2));
+    when(fac2.createVariantEvaluators(config)).thenReturn(ImmutableList.of(override3, override4));
 
     // WHEN
-    Iterable<FeatureOverride> overrides = subject.createOverrides(config);
+    Iterable<VariantEvaluator> overrides = subject.createVariantEvaluators(config);
 
     // THEN
     assertNotNull(overrides);
@@ -75,8 +75,8 @@ public class CompositeFeatureOverridesFactoryTest extends TestCase {
     assertEquals(override3, Iterables.get(overrides, 2));
     assertEquals(override4, Iterables.get(overrides, 3));
 
-    verify(fac1, times(1)).createOverrides(config);
-    verify(fac2, times(1)).createOverrides(config);
+    verify(fac1, times(1)).createVariantEvaluators(config);
+    verify(fac2, times(1)).createVariantEvaluators(config);
   }
 
 }

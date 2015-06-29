@@ -15,6 +15,8 @@
  */
 package org.feature4j.config;
 
+import com.google.gson.JsonElement;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -25,7 +27,7 @@ public class FeatureConfiguration {
   private String type;
   private String value;
 
-  private Map<String, String> overrides = Collections.emptyMap();
+  private Map<String, JsonElement> variants = Collections.emptyMap();
 
   public String getName() {
     return name;
@@ -60,11 +62,11 @@ public class FeatureConfiguration {
     this.value = value;
   }
 
-  public Map<String, String> getOverrides() {
-    return overrides;
+  public Map<String, JsonElement> getVariants() {
+    return variants;
   }
 
-  public void setOverrides(Map<String, String> overrides) {
-    this.overrides = overrides;
+  public void setVariants(Map<String, JsonElement> variants) {
+    this.variants = variants;
   }
 }

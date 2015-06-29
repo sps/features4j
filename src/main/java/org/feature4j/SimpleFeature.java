@@ -16,11 +16,8 @@
 package org.feature4j;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Range;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -28,7 +25,7 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 
 public class SimpleFeature<T> implements Feature<T> {
 
-  private final List<FeatureOverride> overrides;
+  private final List<VariantEvaluator> variantEvaluators;
 
   private final String defaultValue;
 
@@ -39,20 +36,21 @@ public class SimpleFeature<T> implements Feature<T> {
   public SimpleFeature(String name,
                        String key,
                        String defaultValue,
-                       Iterable<FeatureOverride> overrides,
+                       Iterable<VariantEvaluator> variantEvaluators,
                        Optional<Function<String, T>> converter) {
     this.name = name;
     this.key = key;
     this.defaultValue = defaultValue;
-    this.overrides = ImmutableList.copyOf(firstNonNull(overrides, ImmutableList.<FeatureOverride>of()));
+    this.variantEvaluators = ImmutableList.copyOf(
+        firstNonNull(variantEvaluators, ImmutableList.<VariantEvaluator>of()));
     this.converter = converter;
   }
 
   public SimpleFeature(String name,
                        String key,
                        String defaultValue,
-                       Iterable<FeatureOverride> overrides) {
-    this(name, key, defaultValue, overrides, Optional.empty());
+                       Iterable<VariantEvaluator> variantEvaluators) {
+    this(name, key, defaultValue, variantEvaluators, Optional.empty());
   }
 
   @Override
@@ -82,14 +80,15 @@ public class SimpleFeature<T> implements Feature<T> {
       convertedDefaultValue = converter.isPresent() ?
           converter.get().apply(defaultValue) :
           null;
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       convertedDefaultValue = null;
     }
     return Optional.ofNullable(convertedDefaultValue);
   }
 
+
   @Override
-  public Iterable<FeatureOverride> overrides() {
-    return overrides;
+  public Iterable<VariantEvaluator> variantEvaluators() {
+    return variantEvaluators;
   }
 }
