@@ -15,47 +15,71 @@
  */
 package org.feature4j;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
-
-import static com.google.common.base.MoreObjects.firstNonNull;
+import java.util.Optional;
+import java.util.function.Function;
 
 public class FeatureBundle {
 
-  private final Map<String, Object> features;
 
-  public FeatureBundle(Map<String, Object> features) {
-    this.features = ImmutableMap.copyOf(features);
+  private final Map<String, String> featureToVariants;
+
+  public FeatureBundle(Map<String, String> featureToVariants) {
+    this.featureToVariants = ImmutableMap.copyOf(featureToVariants);
   }
 
-  public Boolean enabled(String key) {
-    return get(key, Boolean.class, Boolean.FALSE);
+  public boolean enabled(String key, boolean defaultEnabled) {
+    return get(key, Boolean::valueOf, defaultEnabled);
   }
 
-  public String string(String key) {
-    return firstNonNull(get(key), "").toString();
+  public Optional<Boolean> enabled(String key) {
+    return get(key, Boolean::valueOf);
   }
 
-  public <T> T get(String key, Class<T> valueClass, T defaultValue) {
-    final Optional<T> value = get(key, valueClass);
+  public String string(String key, String defaultString) {
+    return get(key, String::toString, defaultString);
+  }
+
+  public Optional<String> string(String key) {
+    return get(key, String::toString);
+  }
+
+  public int integer(String key, int defaultInt) {
+    return get(key, Integer::valueOf, defaultInt);
+  }
+
+  public Optional<Integer> integer(String key) {
+    return get(key, Integer::valueOf);
+  }
+
+  public float getFloat(String key, float defaultFloat) {
+    return get(key, Float::valueOf, defaultFloat);
+  }
+
+  public Optional<Float> getFloat(String key) {
+    return get(key, Float::valueOf);
+  }
+
+  public <T> T get(String key, Function<String, T> variantConverter, T defaultValue) {
+    final Optional<T> value = get(key, variantConverter);
     return value.isPresent() ? value.get() : defaultValue;
   }
 
-  public <T> Optional<T> get(String key, Class<T> valueClass) {
-    final Object featureValue = features.get(key);
-    if (featureValue == null || !featureValue.getClass().isAssignableFrom(valueClass)) {
-      return Optional.absent();
+  public <T> Optional<T> get(String key, Function<String, T> variantConverter) {
+    String variantString =  featureToVariants.get(key);
+
+    T variant;
+    try {
+      variant = variantString != null ? variantConverter.apply(variantString) : null;
+    } catch (Exception e) {
+      variant = null;
     }
-    return Optional.fromNullable((T) featureValue);
+    return Optional.ofNullable((T) variant);
   }
 
-  public Object get(String key) {
-    return features.get(key);
-  }
-
-  public Map<String, Object> getFeatures() {
-    return features;
+  public Map<String, String> getFeatures() {
+    return featureToVariants;
   }
 }

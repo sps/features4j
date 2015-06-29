@@ -15,10 +15,11 @@
  */
 package org.feature4j;
 
-import com.google.common.base.Optional;
 import junit.framework.TestCase;
 import org.hamcrest.Matcher;
 import org.junit.Test;
+
+import java.util.Optional;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -32,7 +33,7 @@ public class MatcherFeatureOverrideTest extends TestCase {
   public void testNonMatchingFeatureShouldProvideOriginalValue() throws Exception {
     // GIVEN
     when(matcher.matches(any())).thenReturn(false);
-    MatcherFeatureOverride<String> subject = new MatcherFeatureOverride<String>(matcher, "OVERRIDE");
+    MatcherFeatureOverride subject = new MatcherFeatureOverride(matcher, "OVERRIDE");
 
     // WHEN
     Optional<String> opt = subject.extractFeatureValue(SimpleFeaturesContext.EMPTY);
@@ -47,7 +48,7 @@ public class MatcherFeatureOverrideTest extends TestCase {
   public void testMatchingFeatureShouldProvidOverrideValue() throws Exception {
     // GIVEN
     when(matcher.matches(any())).thenReturn(true);
-    MatcherFeatureOverride<String> subject = new MatcherFeatureOverride<String>(matcher, "OVERRIDE");
+    MatcherFeatureOverride subject = new MatcherFeatureOverride(matcher, "OVERRIDE");
 
     // WHEN
     Optional<String> opt = subject.extractFeatureValue(SimpleFeaturesContext.EMPTY);

@@ -69,7 +69,6 @@ public class JSONFeatureBundleProviderFactoryTest {
     assertEquals("one-two", bundle.getFeatures(SESSION_2).getFeatures().get(featureKey));
     assertEquals("three", bundle.getFeatures(SESSION_3).getFeatures().get(featureKey));
     assertEquals("default-value", bundle.getFeatures(SESSION_99).getFeatures().get(featureKey));
-    assertEquals(Boolean.TRUE,
-        bundle.getFeatures(SESSION_0).getFeatures().get("unit.test.two"));
+    assertEquals("true", bundle.getFeatures(SESSION_0).getFeatures().get("unit.test.two"));
   }
 }

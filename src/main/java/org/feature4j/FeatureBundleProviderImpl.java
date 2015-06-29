@@ -15,36 +15,36 @@
  */
 package org.feature4j;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provide a "bundle" of features based on...contextual input.
  */
 public class FeatureBundleProviderImpl implements FeatureBundleProvider {
 
-  private final Collection<Feature<?, ?>> features;
+  private final Collection<Feature> features;
 
-  public FeatureBundleProviderImpl(List<Feature<?, ?>> features) {
+  public FeatureBundleProviderImpl(List<Feature> features) {
     this.features = features;
   }
 
   @Override
   public FeatureBundle getFeatures(FeaturesContext context) {
-    final ImmutableMap.Builder<String, Object> featureMapBuilder = ImmutableMap.builder();
+    final ImmutableMap.Builder<String, String> featureMapBuilder = ImmutableMap.builder();
     for (Feature feature : features) {
-      Object value = getValue(context, feature);
+      String value = getValue(context, feature);
       featureMapBuilder.put(feature.key(), value);
     }
     return new FeatureBundle(featureMapBuilder.build());
   }
 
-  public Object getValue(FeaturesContext context, Feature feature) {
+  public String getValue(FeaturesContext context, Feature feature) {
     Iterable<FeatureOverride> overrides = feature.overrides();
-    Optional<Object> optValue;
+    Optional<String> optValue;
     for (FeatureOverride override : overrides) {
       optValue = override.extractFeatureValue(context);
       if (optValue != null && optValue.isPresent()) {
