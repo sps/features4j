@@ -39,7 +39,7 @@ public class FeatureBundleProviderImplTest {
   }
 
   @Test
-  public void testFeatureOverridesShouldBeIgnoredIfTheyReturnNull() throws Exception {
+  public void testVariantOverridesShouldBeIgnoredIfTheyReturnNull() throws Exception {
     when(variantEvaluator.evaluateVariant(SimpleFeaturesContext.EMPTY)).thenReturn(null);
     FeatureBundle bundle = featureProvider.getFeatures(SimpleFeaturesContext.EMPTY);
     assertEquals(2, bundle.getFeatures().size());
@@ -48,7 +48,7 @@ public class FeatureBundleProviderImplTest {
 
   }
   @Test
-  public void testFeatureOverridesShouldBeIgnoredIfTheyReturnAbsent() throws Exception {
+  public void testVariantOverridesShouldBeIgnoredIfTheyReturnAbsent() throws Exception {
     when(variantEvaluator.evaluateVariant(SimpleFeaturesContext.EMPTY)).thenReturn(Optional.<String>empty());
     FeatureBundle bundle = featureProvider.getFeatures(SimpleFeaturesContext.EMPTY);
     assertEquals(2, bundle.getFeatures().size());
@@ -57,10 +57,20 @@ public class FeatureBundleProviderImplTest {
   }
 
   @Test
-  public void testFeatureOverridesShouldBeUsedIfTheyReturnAValue() throws Exception {
+  public void testVariantOverridesShouldBeUsedIfTheyReturnAValue() throws Exception {
     when(variantEvaluator.evaluateVariant(SimpleFeaturesContext.EMPTY)).thenReturn(Optional.of("OVERRIDE"));
     FeatureBundle bundle = featureProvider.getFeatures(SimpleFeaturesContext.EMPTY);
     assertEquals("1", bundle.string("one", null));
     assertEquals("OVERRIDE", bundle.string("two", null));
+  }
+
+  @Test
+  public void testVariantOverridesShouldOverrideAllSettings() throws Exception {
+    // GIVEN
+
+    // WHEN
+
+    // THEN
+
   }
 }

@@ -15,6 +15,7 @@
  */
 package org.feature4j;
 
+import com.google.common.collect.ImmutableMap;
 import junit.framework.TestCase;
 import org.junit.Test;
 
@@ -27,15 +28,58 @@ public class SimpleFeaturesContextTest extends TestCase {
 
     // THEN
     assertEquals(0, subject.getBucketId());
+    assertEquals(true, subject.getFeatureData().isEmpty());
+    assertEquals(true, subject.getVariantOverrides().isEmpty());
 
   }
+
   @Test
-  public void testBuilderShouldAllowCreationOfBucketId() throws Exception {
+  public void testBuilderShouldAllowAdditionOfFeatureData() throws Exception {
     // WHEN
-    FeaturesContext subject = SimpleFeaturesContext.builder().bucketId(1).build();
+    FeaturesContext subject = SimpleFeaturesContext.builder()
+        .bucketId(1)
+        .addFeatureData("key1", "value1")
+        .addAllFeatureData(ImmutableMap.of("key2", "value2"))
+        .build();
 
     // THEN
     assertEquals(1, subject.getBucketId());
+    assertEquals(true, subject.getVariantOverrides().isEmpty());
+
+    assertEquals(2, subject.getFeatureData().size());
+    assertEquals("value1", subject.getFeatureData().get("key1"));
+    assertEquals("value2", subject.getFeatureData().get("key2"));
+  }
+
+  @Test
+  public void testBuilderShouldAllowAdditionOfVariantOverrides() throws Exception {
+    // WHEN
+    FeaturesContext subject = SimpleFeaturesContext.builder()
+        .bucketId(1)
+        .addVariantOverride("key1", "value1")
+        .addAllVariantOverride(ImmutableMap.of("key2", "value2"))
+        .build();
+
+    // THEN
+    assertEquals(1, subject.getBucketId());
+    assertEquals(true, subject.getFeatureData().isEmpty());
+
+    assertEquals(2, subject.getVariantOverrides().size());
+    assertEquals("value1", subject.getVariantOverrides().get("key1"));
+    assertEquals("value2", subject.getVariantOverrides().get("key2"));
+  }
+
+  @Test
+  public void testBuilderShouldAllowCreationOfBucketId() throws Exception {
+    // WHEN
+    FeaturesContext subject = SimpleFeaturesContext.builder()
+        .bucketId(1)
+        .build();
+
+    // THEN
+    assertEquals(1, subject.getBucketId());
+    assertEquals(true, subject.getFeatureData().isEmpty());
+    assertEquals(true, subject.getVariantOverrides().isEmpty());
 
   }
 }
