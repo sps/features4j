@@ -5,9 +5,15 @@
       "key": "unit.test.one",
       "type": "string",
       "value": "default-value",
-      "overrides": {
-        "1,2": "one-two",
-        "3": "three"
+      "variants": {
+        "bucketIds": [
+          {"min": "1", "max" : "2", "variant" : "one-two"},
+          {"min": "3", "max" : "3", "variant" : "three"}
+        ],
+        "dataValues" : [
+          {"key" : "eventId", "values" : [1,2,3], "variant" : "five-six"},
+          {"key" : "artistId", "values" : [1,2,3], "variant" : "seven-eight"}
+        ]
       }
     },
     {

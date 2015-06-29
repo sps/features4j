@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.feature4j;
+package org.feature4j.config;
 
+import org.feature4j.VariantEvaluator;
 
-import com.google.common.base.Optional;
-
-/**
- * Created by dannwebster on 6/15/15.
- */
-public interface FeatureOverride<V> {
-    Optional<V> extractFeatureValue(FeaturesContext ctx);
+public interface VariantEvaluatorFactory {
+  Iterable<VariantEvaluator> createVariantEvaluators(FeatureConfiguration featureConfiguration);
 }

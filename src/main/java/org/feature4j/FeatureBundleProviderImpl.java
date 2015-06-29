@@ -15,38 +15,41 @@
  */
 package org.feature4j;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Provide a "bundle" of features based on...contextual input.
  */
 public class FeatureBundleProviderImpl implements FeatureBundleProvider {
 
-  private final Collection<Feature<?, ?>> features;
+  private final Collection<Feature> features;
 
-  public FeatureBundleProviderImpl(List<Feature<?, ?>> features) {
+  public FeatureBundleProviderImpl(List<Feature> features) {
     this.features = features;
   }
 
   @Override
   public FeatureBundle getFeatures(FeaturesContext context) {
-    final ImmutableMap.Builder<String, Object> featureMapBuilder = ImmutableMap.builder();
+    final ImmutableMap.Builder<String, String> featureMapBuilder = ImmutableMap.builder();
     for (Feature feature : features) {
-      Object value = getValue(context, feature);
+      String value = getValue(context, feature);
       featureMapBuilder.put(feature.key(), value);
     }
-    return new FeatureBundle(featureMapBuilder.build());
+    featureMapBuilder.putAll(context.getVariantOverrides());
+    Map<String, String> featureMap = featureMapBuilder.build();
+    return new FeatureBundle(featureMap);
   }
 
-  public Object getValue(FeaturesContext context, Feature feature) {
-    Iterable<FeatureOverride> overrides = feature.overrides();
-    Optional<Object> optValue;
-    for (FeatureOverride override : overrides) {
-      optValue = override.extractFeatureValue(context);
+  public String getValue(FeaturesContext context, Feature feature) {
+    Iterable<VariantEvaluator> overrides = feature.variantEvaluators();
+    Optional<String> optValue;
+    for (VariantEvaluator override : overrides) {
+      optValue = override.evaluateVariant(context);
       if (optValue != null && optValue.isPresent()) {
        return optValue.get();
       }

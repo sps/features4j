@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.feature4j.config;
+package org.feature4j;
 
-import org.feature4j.FeatureOverride;
 
-public interface FeatureOverridesFactory {
-  Iterable<FeatureOverride> createOverrides(FeatureConfiguration featureConfiguration);
+import java.util.Optional;
+
+public interface VariantEvaluator {
+    Optional<String> evaluateVariant(FeaturesContext ctx);
 }

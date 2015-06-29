@@ -21,8 +21,7 @@ import com.google.gson.Gson;
 import org.feature4j.Feature;
 import org.feature4j.FeatureBundleProvider;
 import org.feature4j.FeatureBundleProviderImpl;
-import org.feature4j.FeatureOverride;
-import org.feature4j.FeatureValueHydrator;
+import org.feature4j.VariantEvaluator;
 import org.feature4j.SimpleFeature;
 
 import java.io.IOException;
@@ -30,7 +29,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -39,29 +37,24 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class JSONFeatureBundleProviderFactory implements FeatureBundleProviderFactory {
 
-  private static final Map<String, FeatureValueHydrator>
-      HYDRATORS =
-      ImmutableMap.<String, FeatureValueHydrator>builder()
-          .put("string", FeatureValueHydrator.String.INSTANCE)
-          .put("boolean", FeatureValueHydrator.Boolean.INSTANCE)
-          .build();
-
-
-  private static final CompositeFeatureOverridesFactory DEFAULT_FACTORY =
-      CompositeFeatureOverridesFactory.fromFactories(
-        new BucketRangeFeatureOverrideFactory()
+  private static final CompositeVariantEvaluatorFactory DEFAULT_FACTORY =
+      CompositeVariantEvaluatorFactory.fromFactories(
+          new BucketRangeVariantEvaluatorFactory(),
+          new DataValuesVariantEvaluatorFactory()
       );
 
   private final InputStream jsonResource;
-  private final FeatureOverridesFactory featureOverridesFactory;
+  private final VariantEvaluatorFactory variantEvaluatorFactory;
 
   public JSONFeatureBundleProviderFactory(InputStream jsonResource) {
     this(jsonResource, DEFAULT_FACTORY);
   }
 
-  public JSONFeatureBundleProviderFactory(InputStream jsonResource, FeatureOverridesFactory featureOverridesFactory) {
+  public JSONFeatureBundleProviderFactory(InputStream jsonResource,
+                                          VariantEvaluatorFactory variantEvaluatorFactory) {
     this.jsonResource = checkNotNull(jsonResource, "jsonResource must be non-null");
-    this.featureOverridesFactory = checkNotNull(featureOverridesFactory, "featureOverridesFactory must be non-null");
+    this.variantEvaluatorFactory = checkNotNull(variantEvaluatorFactory,
+        "featureOverridesFactory must be non-null");
   }
 
   @Override
@@ -71,18 +64,14 @@ public class JSONFeatureBundleProviderFactory implements FeatureBundleProviderFa
         .fromJson(new InputStreamReader(jsonResource, Charset.defaultCharset()),
             FeatureWrapper.class);
 
-    final ImmutableList.Builder<Feature<?, ?>> listBuilder = ImmutableList.builder();
+    final ImmutableList.Builder<Feature> listBuilder = ImmutableList.builder();
 
-    for (FeatureConfiguration c : features.getFeatures()) {
-
-      final FeatureValueHydrator<Object> objectHydrator = HYDRATORS.get(c.getType());
-
-      Iterable<FeatureOverride> featureOverrides = featureOverridesFactory.createOverrides(c);
-
-      listBuilder.add(new SimpleFeature(c.getName(),
-          c.getKey(),
-          objectHydrator.value(c.getValue()),
-          featureOverrides));
+    if (features != null) {
+      for (FeatureConfiguration c : features.getFeatures()) {
+        Iterable<VariantEvaluator> variantEvaluators = variantEvaluatorFactory.createVariantEvaluators(c);
+        Feature feature = new SimpleFeature(c.getName(), c.getKey(), c.getValue(), variantEvaluators);
+        listBuilder.add(feature);
+      }
     }
 
     return new FeatureBundleProviderImpl(listBuilder.build());

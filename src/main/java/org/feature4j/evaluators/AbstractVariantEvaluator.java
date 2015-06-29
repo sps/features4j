@@ -13,29 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.feature4j;
+package org.feature4j.evaluators;
 
-import com.google.common.base.Optional;
+import org.feature4j.FeaturesContext;
+import org.feature4j.VariantEvaluator;
 import org.hamcrest.Matcher;
+
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class MatcherFeatureOverride<V> implements FeatureOverride<V> {
+public abstract class AbstractVariantEvaluator implements VariantEvaluator {
 
-  private final Matcher matcher;
-  private final V overrideValue;
+  private final String variantValue;
 
-  public MatcherFeatureOverride(Matcher matcher, V overrideValue) {
-    this.matcher = checkNotNull(matcher, "matcher must be set to a non-null value");
-    this.overrideValue = checkNotNull(overrideValue, "overrideValue must be set to a non-null value");
+  public AbstractVariantEvaluator(String variantValue) {
+    this.variantValue = checkNotNull(variantValue, "variantValue must be set to a non-null value");
   }
 
+  public abstract boolean matches(FeaturesContext ctx);
+
   @Override
-  public Optional<V> extractFeatureValue(FeaturesContext ctx) {
-    if (matcher.matches(ctx)) {
-      return Optional.of(overrideValue);
+  public Optional<String> evaluateVariant(FeaturesContext ctx) {
+    if (matches(ctx)) {
+      return Optional.of(variantValue);
     } else {
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 }

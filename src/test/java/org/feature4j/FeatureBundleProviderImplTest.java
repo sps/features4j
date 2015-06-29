@@ -15,10 +15,11 @@
  */
 package org.feature4j;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -26,40 +27,50 @@ import static org.mockito.Mockito.when;
 
 public class FeatureBundleProviderImplTest {
 
-  private final FeatureOverride<String> featureOverride = mock(FeatureOverride.class);
-  private final Feature<String, FeaturesContext> feature1 = new SimpleFeature<>("1", "one", "1", null);
-  private final Feature<String, FeaturesContext> feature2 = new SimpleFeature<>("1", "two", "0", ImmutableList.of(featureOverride));
+  private final VariantEvaluator variantEvaluator = mock(VariantEvaluator.class);
+  private final Feature feature1 = new SimpleFeature("1", "one", "1", null);
+  private final Feature feature2 = new SimpleFeature("1", "two", "0", ImmutableList.of(variantEvaluator));
   private FeatureBundleProvider featureProvider;
 
 
   @Before
   public void setUp() throws Exception {
-    featureProvider = new FeatureBundleProviderImpl(ImmutableList.<Feature<?, ?>>of(feature1, feature2));
+    featureProvider = new FeatureBundleProviderImpl(ImmutableList.<Feature>of(feature1, feature2));
   }
 
   @Test
-  public void testFeatureOverridesShouldBeIgnoredIfTheyReturnNull() throws Exception {
-    when(featureOverride.extractFeatureValue(SimpleFeaturesContext.EMPTY)).thenReturn(null);
+  public void testVariantOverridesShouldBeIgnoredIfTheyReturnNull() throws Exception {
+    when(variantEvaluator.evaluateVariant(SimpleFeaturesContext.EMPTY)).thenReturn(null);
     FeatureBundle bundle = featureProvider.getFeatures(SimpleFeaturesContext.EMPTY);
     assertEquals(2, bundle.getFeatures().size());
-    assertEquals("1", bundle.get("one", String.class, null));
-    assertEquals("0", bundle.get("two", String.class, null));
+    assertEquals("1", bundle.string("one", null));
+    assertEquals("0", bundle.string("two", null));
 
   }
   @Test
-  public void testFeatureOverridesShouldBeIgnoredIfTheyReturnAbsent() throws Exception {
-    when(featureOverride.extractFeatureValue(SimpleFeaturesContext.EMPTY)).thenReturn(Optional.<String>absent());
+  public void testVariantOverridesShouldBeIgnoredIfTheyReturnAbsent() throws Exception {
+    when(variantEvaluator.evaluateVariant(SimpleFeaturesContext.EMPTY)).thenReturn(Optional.<String>empty());
     FeatureBundle bundle = featureProvider.getFeatures(SimpleFeaturesContext.EMPTY);
     assertEquals(2, bundle.getFeatures().size());
-    assertEquals("1", bundle.get("one", String.class, null));
-    assertEquals("0", bundle.get("two", String.class, null));
+    assertEquals("1", bundle.string("one", null));
+    assertEquals("0", bundle.string("two", null));
   }
 
   @Test
-  public void testFeatureOverridesShouldBeUsedIfTheyReturnAValue() throws Exception {
-    when(featureOverride.extractFeatureValue(SimpleFeaturesContext.EMPTY)).thenReturn(Optional.of("OVERRIDE"));
+  public void testVariantOverridesShouldBeUsedIfTheyReturnAValue() throws Exception {
+    when(variantEvaluator.evaluateVariant(SimpleFeaturesContext.EMPTY)).thenReturn(Optional.of("OVERRIDE"));
     FeatureBundle bundle = featureProvider.getFeatures(SimpleFeaturesContext.EMPTY);
-    assertEquals("1", bundle.get("one", String.class, null));
-    assertEquals("OVERRIDE", bundle.get("two", String.class, null));
+    assertEquals("1", bundle.string("one", null));
+    assertEquals("OVERRIDE", bundle.string("two", null));
+  }
+
+  @Test
+  public void testVariantOverridesShouldOverrideAllSettings() throws Exception {
+    // GIVEN
+
+    // WHEN
+
+    // THEN
+
   }
 }

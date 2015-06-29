@@ -29,26 +29,38 @@ public class FeatureBundleTest {
   @Test
   public void testValue() throws Exception {
     final FeatureBundle
-        bundle = new FeatureBundle(ImmutableMap.<String, Object>of("foo", 1L,
+        bundle = new FeatureBundle(ImmutableMap.<String, String>of(
+        "foo", "1",
         "bar", "NaN",
-        "int", 4,
-        "truth", Boolean.TRUE));
+        "int", "4",
+        "truth", "true"));
 
     // truthiness
-    assertTrue(bundle.enabled("truth"));
-    assertFalse(bundle.enabled("no.key"));
-    assertFalse(bundle.enabled("foo"));
+    assertTrue(bundle.enabled("truth").get());
+    assertFalse(bundle.enabled("no.key", false));
+    assertFalse(bundle.enabled("foo", false));
 
     // stringiness
-    assertEquals("1", bundle.string("foo"));
-    assertEquals("true", bundle.string("truth"));
-    assertEquals("", bundle.string("no.key"));
+    assertEquals(true, bundle.string("foo").isPresent());
+    assertEquals("1", bundle.string("foo").get());
+    assertEquals("true", bundle.string("truth", "false"));
+    assertEquals("", bundle.string("no.key", ""));
 
-    assertEquals((Long) 1L, bundle.get("foo", Long.class, 0L));
-    assertEquals((Long) 2L, bundle.get("xxx", Long.class, 2L));
-    assertEquals((Long) 3L, bundle.get("bar", Long.class, 3L));
-    assertEquals((Long) 0L, bundle.get("int", Long.class, 0L));
-    assertEquals(1L, bundle.get("foo"));
+    // integeriness
+    assertEquals(1, bundle.integer("foo", 0));
+    assertEquals(2, bundle.integer("xxx", 2));
+    assertEquals(3, bundle.integer("bar", 3));
+    assertEquals(4, bundle.integer("int", 0));
+    assertEquals(true, bundle.integer("foo").isPresent());
+    assertEquals(1, bundle.integer("foo").get().intValue());
+
+    // floatiness
+    assertEquals(1F, bundle.getFloat("foo", 0), 0.1F);
+    assertEquals(2F, bundle.getFloat("xxx", 2), 0.1F);
+    assertEquals(Float.NaN, bundle.getFloat("bar", 3), 0.1F);
+    assertEquals(4F, bundle.getFloat("int", 0), 0.1F);
+    assertEquals(true, bundle.getFloat("foo").isPresent());
+    assertEquals(1F, bundle.getFloat("foo").get().intValue(), 0.1F);
 
     assertNotNull(bundle.getFeatures());
   }

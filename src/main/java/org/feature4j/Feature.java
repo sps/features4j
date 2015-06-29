@@ -15,17 +15,22 @@
  */
 package org.feature4j;
 
-import com.google.common.collect.Range;
+import java.util.Optional;
+import java.util.function.Function;
 
-import java.util.Map;
-
-public interface Feature<T, C extends FeaturesContext> {
+public interface Feature<T> {
 
   String key();
 
   String name();
 
-  T defaultValue();
+  String defaultValue();
 
-  Iterable<FeatureOverride<T>> overrides();
+  Optional<T> convertedDefaultValue();
+
+  Optional<Function<String, T>> converter();
+
+  Iterable<VariantEvaluator> variantEvaluators();
+
 }
+

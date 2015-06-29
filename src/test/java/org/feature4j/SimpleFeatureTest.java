@@ -23,8 +23,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
 public class SimpleFeatureTest {
@@ -37,21 +39,58 @@ public class SimpleFeatureTest {
       Range.closed(1, 10), overrideValue
   );
 
-  private SimpleFeature<String, FeaturesContext> feature;
-  private FeatureOverride<String> featureOverride;
+  private VariantEvaluator variantEvaluator;
 
   @Before
   public void setUp() throws Exception {
-    featureOverride = mock(FeatureOverride.class);
-    feature = new SimpleFeature<>(name, key, value, ImmutableList.of(featureOverride));
   }
 
   @Test
-  public void testBasic() {
+  public void testConstructorWithoutConverterShouldReturnNoConvertedDefaultValue() {
+    // GIVEN
+    variantEvaluator = mock(VariantEvaluator.class);
+
+    // WHEN
+    Feature<String> feature = new SimpleFeature<>(name, key, value, ImmutableList.of(variantEvaluator));
+
+    // THEN
+    assertEquals(false, feature.converter().isPresent());
     assertEquals(name, feature.name());
     assertEquals(key, feature.key());
     assertEquals(value, feature.defaultValue());
-    assertEquals(1, Iterables.size(feature.overrides()));
+    assertEquals(1, Iterables.size(feature.variantEvaluators()));
+
+    assertEquals(false, feature.convertedDefaultValue().isPresent());
   }
 
+  @Test
+  public void testConstructorWithConverterShouldReturnConvertedDefaultValue() {
+    // GIVEN
+    variantEvaluator = mock(VariantEvaluator.class);
+
+    // WHEN
+    Feature<Integer> feature = new SimpleFeature<>(name, key, "5",
+        ImmutableList.of(variantEvaluator),
+        Optional.of(Integer::valueOf));
+
+    // THEN
+    assertEquals(true, feature.converter().isPresent());
+    assertEquals(true, feature.convertedDefaultValue().isPresent());
+    assertEquals(new Integer(5), feature.convertedDefaultValue().get());
+  }
+
+  @Test
+  public void testConstructorWithConverterShouldReturnConvertedDefaultValueOnIllegalValue() {
+    // GIVEN
+    variantEvaluator = mock(VariantEvaluator.class);
+
+    // WHEN
+    Feature<Integer> feature = new SimpleFeature<>(name, key, "NaN",
+        ImmutableList.of(variantEvaluator),
+        Optional.of(Integer::valueOf));
+
+    // THEN
+    assertEquals(true, feature.converter().isPresent());
+    assertEquals(false, feature.convertedDefaultValue().isPresent());
+  }
 }

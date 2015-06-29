@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.feature4j;
+package org.feature4j.evaluators;
 
-import com.google.common.base.Optional;
 import junit.framework.TestCase;
+import org.feature4j.SimpleFeaturesContext;
 import org.hamcrest.Matcher;
 import org.junit.Test;
+
+import java.util.Optional;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class MatcherFeatureOverrideTest extends TestCase {
+public class MatcherVariantEvaluatorTest extends TestCase {
 
   Matcher matcher = mock(Matcher.class);
 
@@ -32,10 +34,10 @@ public class MatcherFeatureOverrideTest extends TestCase {
   public void testNonMatchingFeatureShouldProvideOriginalValue() throws Exception {
     // GIVEN
     when(matcher.matches(any())).thenReturn(false);
-    MatcherFeatureOverride<String> subject = new MatcherFeatureOverride<String>(matcher, "OVERRIDE");
+    MatcherVariantEvaluator subject = new MatcherVariantEvaluator(matcher, "OVERRIDE");
 
     // WHEN
-    Optional<String> opt = subject.extractFeatureValue(SimpleFeaturesContext.EMPTY);
+    Optional<String> opt = subject.evaluateVariant(SimpleFeaturesContext.EMPTY);
 
     // THEN
     assertEquals(false, opt.isPresent());
@@ -47,10 +49,10 @@ public class MatcherFeatureOverrideTest extends TestCase {
   public void testMatchingFeatureShouldProvidOverrideValue() throws Exception {
     // GIVEN
     when(matcher.matches(any())).thenReturn(true);
-    MatcherFeatureOverride<String> subject = new MatcherFeatureOverride<String>(matcher, "OVERRIDE");
+    MatcherVariantEvaluator subject = new MatcherVariantEvaluator(matcher, "OVERRIDE");
 
     // WHEN
-    Optional<String> opt = subject.extractFeatureValue(SimpleFeaturesContext.EMPTY);
+    Optional<String> opt = subject.evaluateVariant(SimpleFeaturesContext.EMPTY);
 
     // THEN
     assertEquals(true, opt.isPresent());

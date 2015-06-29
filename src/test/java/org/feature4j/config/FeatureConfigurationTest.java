@@ -25,17 +25,17 @@ public class FeatureConfigurationTest {
   @Test
   public void testCountingRocks() throws Exception {
     final FeatureConfiguration featureConfig = new FeatureConfiguration();
-    assertNotNull(featureConfig.getOverrides());
+    assertNotNull(featureConfig.getVariants());
     featureConfig.setKey(null);
     featureConfig.setName(null);
     featureConfig.setType(null);
     featureConfig.setType(null);
-    featureConfig.setOverrides(null);
+    featureConfig.setVariants(null);
     featureConfig.setValue(null);
     assertNull(featureConfig.getKey());
     assertNull(featureConfig.getName());
     assertNull(featureConfig.getType());
     assertNull(featureConfig.getValue());
-    assertNull(featureConfig.getOverrides());
+    assertNull(featureConfig.getVariants());
   }
 }
