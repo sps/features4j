@@ -21,23 +21,38 @@ import com.google.common.collect.Range;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 
-public class SimpleFeature<T, C extends FeaturesContext> implements Feature<T, C> {
+public class SimpleFeature<T> implements Feature<T> {
 
-  private final List<FeatureOverride<T>> overrides;
+  private final List<FeatureOverride> overrides;
 
-  private final T defaultValue;
+  private final String defaultValue;
 
   private final String name;
   private final String key;
+  private final Optional<Function<String, T>> converter;
 
-  public SimpleFeature(String name, String key, T defaultValue, Iterable<FeatureOverride<T>> overrides) {
+  public SimpleFeature(String name,
+                       String key,
+                       String defaultValue,
+                       Iterable<FeatureOverride> overrides,
+                       Optional<Function<String, T>> converter) {
     this.name = name;
-    this.defaultValue = defaultValue;
     this.key = key;
-    this.overrides = ImmutableList.copyOf(firstNonNull(overrides, ImmutableList.<FeatureOverride<T>>of()));
+    this.defaultValue = defaultValue;
+    this.overrides = ImmutableList.copyOf(firstNonNull(overrides, ImmutableList.<FeatureOverride>of()));
+    this.converter = converter;
+  }
+
+  public SimpleFeature(String name,
+                       String key,
+                       String defaultValue,
+                       Iterable<FeatureOverride> overrides) {
+    this(name, key, defaultValue, overrides, Optional.empty());
   }
 
   @Override
@@ -51,12 +66,30 @@ public class SimpleFeature<T, C extends FeaturesContext> implements Feature<T, C
   }
 
   @Override
-  public T defaultValue() {
+  public String defaultValue() {
     return defaultValue;
   }
 
   @Override
-  public Iterable<FeatureOverride<T>> overrides() {
+  public Optional<Function<String, T>> converter() {
+    return converter;
+  }
+
+  @Override
+  public Optional<T> convertedDefaultValue() {
+    T convertedDefaultValue;
+    try {
+      convertedDefaultValue = converter.isPresent() ?
+          converter.get().apply(defaultValue) :
+          null;
+    } catch (Exception e) {
+      convertedDefaultValue = null;
+    }
+    return Optional.ofNullable(convertedDefaultValue);
+  }
+
+  @Override
+  public Iterable<FeatureOverride> overrides() {
     return overrides;
   }
 }

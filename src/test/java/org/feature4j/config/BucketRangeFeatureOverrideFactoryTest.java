@@ -15,12 +15,13 @@
  */
 package org.feature4j.config;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Range;
 import junit.framework.TestCase;
 import org.feature4j.FeaturesContext;
 import org.hamcrest.Matcher;
 import org.junit.Test;
+
+import java.util.Optional;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

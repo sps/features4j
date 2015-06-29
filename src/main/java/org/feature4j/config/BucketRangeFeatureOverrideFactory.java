@@ -15,7 +15,6 @@
  */
 package org.feature4j.config;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Range;
 import org.feature4j.FeatureOverride;
 import org.feature4j.MatcherFeatureOverride;
@@ -25,6 +24,7 @@ import org.hamcrest.beans.HasPropertyWithValue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static org.hamcrest.Matchers.allOf;
@@ -38,7 +38,7 @@ public class BucketRangeFeatureOverrideFactory implements FeatureOverridesFactor
   @Override
   public Iterable<FeatureOverride> createOverrides(FeatureConfiguration featureConfiguration) {
     List<FeatureOverride> overrides = new ArrayList<>();
-    for (Map.Entry<String, Object> entry : featureConfiguration.getOverrides().entrySet()) {
+    for (Map.Entry<String, String> entry : featureConfiguration.getOverrides().entrySet()) {
       Optional<Range<Integer>> range = getRange(entry.getKey());
       if (range.isPresent()) {
         Matcher matcher = createRangeMatcher(range.get());
@@ -50,7 +50,7 @@ public class BucketRangeFeatureOverrideFactory implements FeatureOverridesFactor
   }
 
   public Optional<Range<Integer>> getRange(String rangeString) {
-    Optional<Range<Integer>> optRange = Optional.absent();
+    Optional<Range<Integer>> optRange = Optional.empty();
     if (rangeString != null && !rangeString.isEmpty()) {
       java.util.regex.Matcher regexMatcher = RANGE_PATTERN.matcher(rangeString);
       if (regexMatcher.matches()) {

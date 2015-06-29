@@ -15,27 +15,28 @@
  */
 package org.feature4j;
 
-import com.google.common.base.Optional;
 import org.hamcrest.Matcher;
+
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class MatcherFeatureOverride<V> implements FeatureOverride<V> {
+public class MatcherFeatureOverride implements FeatureOverride {
 
   private final Matcher matcher;
-  private final V overrideValue;
+  private final String overrideValue;
 
-  public MatcherFeatureOverride(Matcher matcher, V overrideValue) {
+  public MatcherFeatureOverride(Matcher matcher, String overrideValue) {
     this.matcher = checkNotNull(matcher, "matcher must be set to a non-null value");
     this.overrideValue = checkNotNull(overrideValue, "overrideValue must be set to a non-null value");
   }
 
   @Override
-  public Optional<V> extractFeatureValue(FeaturesContext ctx) {
+  public Optional<String> extractFeatureValue(FeaturesContext ctx) {
     if (matcher.matches(ctx)) {
       return Optional.of(overrideValue);
     } else {
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 }

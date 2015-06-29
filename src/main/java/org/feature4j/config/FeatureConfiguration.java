@@ -25,7 +25,7 @@ public class FeatureConfiguration {
   private String type;
   private String value;
 
-  private Map<String, Object> overrides = Collections.emptyMap();
+  private Map<String, String> overrides = Collections.emptyMap();
 
   public String getName() {
     return name;
@@ -60,11 +60,11 @@ public class FeatureConfiguration {
     this.value = value;
   }
 
-  public Map<String, Object> getOverrides() {
+  public Map<String, String> getOverrides() {
     return overrides;
   }
 
-  public void setOverrides(Map<String, Object> overrides) {
+  public void setOverrides(Map<String, String> overrides) {
     this.overrides = overrides;
   }
 }

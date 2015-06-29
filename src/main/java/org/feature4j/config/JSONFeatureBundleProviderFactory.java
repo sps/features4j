@@ -16,13 +16,11 @@
 package org.feature4j.config;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import org.feature4j.Feature;
 import org.feature4j.FeatureBundleProvider;
 import org.feature4j.FeatureBundleProviderImpl;
 import org.feature4j.FeatureOverride;
-import org.feature4j.FeatureValueHydrator;
 import org.feature4j.SimpleFeature;
 
 import java.io.IOException;
@@ -30,7 +28,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -38,14 +35,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Using json as a config file format is a bit brittle and prone to human error.
  */
 public class JSONFeatureBundleProviderFactory implements FeatureBundleProviderFactory {
-
-  private static final Map<String, FeatureValueHydrator>
-      HYDRATORS =
-      ImmutableMap.<String, FeatureValueHydrator>builder()
-          .put("string", FeatureValueHydrator.String.INSTANCE)
-          .put("boolean", FeatureValueHydrator.Boolean.INSTANCE)
-          .build();
-
 
   private static final CompositeFeatureOverridesFactory DEFAULT_FACTORY =
       CompositeFeatureOverridesFactory.fromFactories(
@@ -71,18 +60,12 @@ public class JSONFeatureBundleProviderFactory implements FeatureBundleProviderFa
         .fromJson(new InputStreamReader(jsonResource, Charset.defaultCharset()),
             FeatureWrapper.class);
 
-    final ImmutableList.Builder<Feature<?, ?>> listBuilder = ImmutableList.builder();
+    final ImmutableList.Builder<Feature> listBuilder = ImmutableList.builder();
 
     for (FeatureConfiguration c : features.getFeatures()) {
-
-      final FeatureValueHydrator<Object> objectHydrator = HYDRATORS.get(c.getType());
-
       Iterable<FeatureOverride> featureOverrides = featureOverridesFactory.createOverrides(c);
-
-      listBuilder.add(new SimpleFeature(c.getName(),
-          c.getKey(),
-          objectHydrator.value(c.getValue()),
-          featureOverrides));
+      Feature feature = new SimpleFeature(c.getName(), c.getKey(), c.getValue(), featureOverrides);
+      listBuilder.add(feature);
     }
 
     return new FeatureBundleProviderImpl(listBuilder.build());
